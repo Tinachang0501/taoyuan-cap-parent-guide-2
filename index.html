@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="text-[18px] sm:text-[22px]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>115學年度 六和高中國中部 國305班 升學與超額比序家長互動自查手冊 (大字版)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body { font-size: 1.25rem; line-height: 1.7; }
+    h1 { font-size: 2.0rem !important; }
+    h2 { font-size: 1.6rem !important; }
+    h3 { font-size: 1.4rem !important; }
+    h4 { font-size: 1.25rem !important; }
+    select, button, input { font-size: 1.15rem !important; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-16 font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- 頂部頁首 (取消頂部固定/不凍結視窗，隨網頁自然滑動) -->
+  <header class="w-full bg-indigo-600 text-white py-2.5 px-4 sm:py-3.5 sm:px-6 shadow-md">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 sm:gap-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block px-2.5 py-0.5 bg-indigo-500 text-white rounded-full text-xs sm:text-sm font-extrabold shrink-0">國305班</span>
+        <h1 class="font-black tracking-tight leading-tight text-white m-0" style="font-size: 1.15rem !important;">國三升學與超額比序 家長自查手冊</h1>
+      </div>
+      <p class="text-xs sm:text-sm text-indigo-100 font-semibold m-0 opacity-90">導師：張慧玲（張媽）｜六和高中國中部</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl w-full mx-auto px-6 pt-8 space-y-8">
+
+    <!-- 區塊 1: 輸入孩子座號或姓名快查與家長驗證密碼 -->
+    <section class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 space-y-6">
+      <div class="flex items-center space-x-3 border-b-2 pb-4">
+        <span class="text-4xl">🔍</span>
+        <div>
+          <h2 class="font-black text-slate-900">選取孩子的姓名/座號 密碼自查</h2>
+          <p class="text-base text-slate-600 font-medium">已載入《獎懲總和905上.xlsx》最新紀錄（需輸入家長驗證密碼解鎖）：</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-base font-black text-slate-800 mb-2">1. 請選取您的孩子：</label>
+          <select id="parent-stu-select" onchange="onParentSelectChange()" class="w-full p-3.5 rounded-2xl border-4 border-indigo-500 bg-slate-50 font-black text-indigo-700 shadow-sm focus:outline-none">
+            <!-- 動態載入 46 名學生 -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-base font-black text-slate-800 mb-2">2. 請輸入家長驗證密碼：</label>
+          <div class="flex gap-2">
+            <input type="password" id="parent-pwd-input" placeholder="請輸入身分證末4碼" onkeydown="if(event.key==='Enter') verifyParentPwd()" class="w-full p-3.5 rounded-2xl border-4 border-slate-300 focus:border-indigo-600 bg-slate-50 font-black text-slate-800 shadow-sm focus:outline-none">
+            <button onclick="verifyParentPwd()" class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-md transition shrink-0">
+              🔓 解鎖
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 font-bold mt-2">
+            💡 預設密碼為孩子的【身分證字號末 4 碼】。
+          </p>
+        </div>
+      </div>
+
+      <!-- 密碼驗證狀態條 -->
+      <div id="pwd-status-banner" class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 font-bold flex flex-wrap items-center justify-between gap-2 text-base transition-all">
+        <span id="pwd-status-text">🔒 尚未驗證密碼！請選取孩子座號並輸入家長驗證密碼解鎖個資。</span>
+        <div class="p-2 px-3 rounded-xl bg-amber-100 text-amber-950 font-black text-sm">
+          <span>目前選取：</span> <span id="p-stu-info" class="text-amber-900">-- 尚未選取 --</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 2: 比序與缺額即時自查卡 (重點儀表板) -->
+    <section class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 space-y-6">
+      <div class="flex justify-between items-center border-b-2 pb-4">
+        <h3 class="font-black text-slate-900 flex items-center gap-2">
+          <span>📊</span> 桃連區超額比序 100 分試算與缺額警示
+        </h3>
+        <span id="p-total-badge" class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-900 font-black text-base">預估總分：100 / 100 分</span>
+      </div>
+
+      <!-- 三大分項即時狀態 -->
+      <div class="grid grid-cols-3 gap-4 text-center">
+        <div class="p-4 rounded-2xl bg-indigo-50 border-2 border-indigo-200">
+          <span class="text-indigo-600 block text-sm font-bold">1. 適性輔導</span>
+          <span id="p-score-guidance" class="text-xl font-black text-indigo-700">32 / 32 分</span>
+          <span class="text-xs text-emerald-600 block font-bold mt-1">✅ 已滿分</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200">
+          <span class="text-emerald-600 block text-sm font-bold">2. 多元學習</span>
+          <span id="p-score-multi" class="text-xl font-black text-emerald-700">35 / 35 分</span>
+          <span id="p-status-multi" class="text-xs text-emerald-600 block font-bold mt-1">✅ 已滿分</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-rose-50 border-2 border-rose-200">
+          <span class="text-rose-600 block text-sm font-bold">3. 會考(預估)</span>
+          <span id="p-score-cap" class="text-xl font-black text-rose-700">33 / 33 分</span>
+          <span id="p-cap-text" class="text-xs text-rose-600 block font-bold mt-1">5A (25點)</span>
+        </div>
+      </div>
+
+      <!-- 品德銷過與服務時數專屬提醒卡 -->
+      <div class="p-6 rounded-2xl bg-slate-900 text-slate-100 space-y-3 text-base">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <span class="font-black text-amber-400 text-lg">⚠️ 給家長的自我檢查溫馨警示</span>
+          <span class="text-xs text-slate-400 font-bold">多元學習前35分把關</span>
+        </div>
+
+        <div class="space-y-2 leading-relaxed font-semibold">
+          <p id="p-warn-notice" class="text-emerald-400">✅ <strong>品德銷過狀態：</strong> 銷過後無任何處分紀錄，穩拿 6 分滿分！</p>
+          <p id="p-service-notice" class="text-emerald-400">✅ <strong>服務時數進度：</strong> 目前 108 小時，服務表現已順利滿分！</p>
+          <p id="p-merit-notice" class="text-slate-300">💡 <strong>獎勵累計：</strong> 嘉獎 11 支，獎勵積分已拿滿 5.5 / 6 分。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 2.5: 會考 5 科與作文級分 模擬試算器 + 115 桃園公立高中錄取門檻對照卡 -->
+    <section class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 pb-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-4xl">📝</span>
+          <div>
+            <h2 class="font-black text-slate-900">會考各科成績與作文級分 模擬試算器</h2>
+            <p class="text-base text-slate-600 font-medium">切換各科預估等級，系統即時算出「會考積分 (33分)」與「會考總積點 (35點)」！</p>
+          </div>
+        </div>
+        <div class="flex flex-col items-end">
+          <span id="cap-sim-score-badge" class="px-4 py-2 rounded-2xl bg-rose-100 text-rose-900 font-black text-lg border-2 border-rose-300">
+            會考預估：33 分 / 35 點 (5A)
+          </span>
+          <span id="cap-sim-total-badge" class="text-xs text-indigo-700 font-bold mt-1">
+            桃連區超額比序預估總分：100 分 (滿分)
+          </span>
+        </div>
+      </div>
+
+      <!-- 5 科與寫作下拉選單 -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-base">
+        <div>
+          <label class="block font-black text-indigo-900 text-sm mb-1">國文科</label>
+          <select id="sim-c" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-indigo-400 bg-slate-50 font-black text-indigo-700">
+            <option value="A++" selected>A++ (7點)</option>
+            <option value="A+">A+ (6點)</option>
+            <option value="A">A (5點)</option>
+            <option value="B++">B++ (4點)</option>
+            <option value="B+">B+ (3點)</option>
+            <option value="B">B (2點)</option>
+            <option value="C">C (1點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-black text-indigo-900 text-sm mb-1">英文科</label>
+          <select id="sim-e" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-indigo-400 bg-slate-50 font-black text-indigo-700">
+            <option value="A++" selected>A++ (7點)</option>
+            <option value="A+">A+ (6點)</option>
+            <option value="A">A (5點)</option>
+            <option value="B++">B++ (4點)</option>
+            <option value="B+">B+ (3點)</option>
+            <option value="B">B (2點)</option>
+            <option value="C">C (1點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-black text-indigo-900 text-sm mb-1">數學科</label>
+          <select id="sim-m" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-indigo-400 bg-slate-50 font-black text-indigo-700">
+            <option value="A++" selected>A++ (7點)</option>
+            <option value="A+">A+ (6點)</option>
+            <option value="A">A (5點)</option>
+            <option value="B++">B++ (4點)</option>
+            <option value="B+">B+ (3點)</option>
+            <option value="B">B (2點)</option>
+            <option value="C">C (1點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-black text-indigo-900 text-sm mb-1">自然科</label>
+          <select id="sim-n" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-indigo-400 bg-slate-50 font-black text-indigo-700">
+            <option value="A++" selected>A++ (7點)</option>
+            <option value="A+">A+ (6點)</option>
+            <option value="A">A (5點)</option>
+            <option value="B++">B++ (4點)</option>
+            <option value="B+">B+ (3點)</option>
+            <option value="B">B (2點)</option>
+            <option value="C">C (1點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-black text-indigo-900 text-sm mb-1">社會科</label>
+          <select id="sim-s" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-indigo-400 bg-slate-50 font-black text-indigo-700">
+            <option value="A++" selected>A++ (7點)</option>
+            <option value="A+">A+ (6點)</option>
+            <option value="A">A (5點)</option>
+            <option value="B++">B++ (4點)</option>
+            <option value="B+">B+ (3點)</option>
+            <option value="B">B (2點)</option>
+            <option value="C">C (1點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-black text-rose-900 text-sm mb-1">寫作測驗</label>
+          <select id="sim-w" onchange="calcCapSim()" class="w-full p-2.5 rounded-xl border-2 border-rose-400 bg-slate-50 font-black text-rose-700">
+            <option value="6">6級分 (3分)</option>
+            <option value="5" selected>5級分 (3分)</option>
+            <option value="4">4級分 (3分)</option>
+            <option value="3">3級分 (2分)</option>
+            <option value="2">2級分 (2分)</option>
+            <option value="1">1級分 (1分)</option>
+            <option value="0">0級分 (0分)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 115 桃園公立高中對照表 -->
+      <div class="mt-6 border-t-2 pt-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h3 class="font-black text-slate-900 flex items-center gap-2">
+            <span>🏫</span> 115 年桃園各公立高中會考免試最低錄取分數對照 (參考《115年桃園各高中最低錄取標示-公立高中》)
+          </h3>
+          <span class="text-xs bg-indigo-100 text-indigo-900 px-3 py-1 rounded-full font-bold">資料來源：桃園儒林整理版</span>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border-2 border-slate-200 shadow-sm">
+          <table class="w-full text-left text-base border-collapse">
+            <thead>
+              <tr class="bg-indigo-600 text-white font-black text-sm">
+                <th class="p-3">高中名稱</th>
+                <th class="p-3">免試招生名額</th>
+                <th class="p-3">會考成績與積分</th>
+                <th class="p-3">總積點</th>
+                <th class="p-3">單科成績標示</th>
+                <th class="p-3 text-center">模擬落點比對</th>
+              </tr>
+            </thead>
+            <tbody id="school-cutoff-tbody" class="divide-y divide-slate-200 font-semibold bg-slate-50">
+              <!-- JS 動態產生對照表格 -->
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-slate-500 font-bold">
+          📌 此錄取條件須「適性輔導 (32分)」、「多元學習 (35分)」、「寫作測驗」皆滿分；因資料為多方蒐集非全貌，最低錄取分數未必最低，僅供參考。
+        </p>
+      </div>
+    </section>
+
+    <!-- 區塊 3: 導師建議 -->
+    <section class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 space-y-4">
+      <h3 class="font-black text-slate-900 flex items-center gap-2 border-b-2 pb-3">
+        <span>💡</span> 張媽給孩子的落點與學習建議
+      </h3>
+      <div class="p-5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-base text-indigo-950 font-bold leading-relaxed">
+        <p id="p-teacher-advice">學習態度積極，比序前67分已穩定入袋，可放心發揮實力衝刺第一志願！</p>
+      </div>
+    </section>
+
+    <!-- 區塊 4: 國三陪伴心法 -->
+    <section class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 space-y-4">
+      <h3 class="font-black text-slate-900 flex items-center gap-2 border-b-2 pb-3">
+        <span>💖</span> 張媽給家長的陪伴心法
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base font-semibold">
+        <div class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 space-y-1">
+          <span class="font-black text-indigo-600 block">🛌 保障 7 - 8 小時睡眠</span>
+          <p class="text-slate-600">晚上 23:00 前入睡，避免熬夜夜讀，確保白天在校學習續航力。</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 space-y-1">
+          <span class="font-black text-indigo-600 block">📱 共同約定手機規範</span>
+          <p class="text-slate-600">睡前統一收放手機，減少社群遊戲對專注力的干擾。</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 space-y-1">
+          <span class="font-black text-indigo-600 block">💖 多鼓勵，少比較</span>
+          <p class="text-slate-600">關注孩子的進步與努力，給予擁抱與傾聽，做孩子安心的後盾。</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 space-y-1">
+          <span class="font-black text-indigo-600 block">🤝 親師攜手 99 分的愛</span>
+          <p class="text-slate-600">導師用心 49% + 家長施力 50% = 99%，留 1% 讓孩子學會獨立！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 5: 導師聯絡名片 -->
+    <footer class="bg-white rounded-3xl p-8 shadow-md border-2 border-slate-200 text-center text-base space-y-3 font-semibold">
+      <h4 class="font-black text-indigo-700">📞 六和高中國中部 國305班 導師聯絡卡</h4>
+      <p class="text-slate-700 font-bold">導師：張慧玲 老師（張媽）</p>
+      <div class="flex flex-wrap justify-center items-center gap-4 pt-2">
+        <span class="bg-indigo-50 text-indigo-700 font-mono px-4 py-2 rounded-2xl font-black">Line ID: tinachang0501</span>
+        <span class="bg-indigo-50 text-indigo-700 font-mono px-4 py-2 rounded-2xl font-black">電話: 0981-655-345</span>
+      </div>
+      <p class="text-xs text-slate-400 pt-3">六和高中感謝您的細心陪伴！祝 闔家平安 順心如意</p>
+    </footer>
+
+  </main>
+
+  <script>
+    // 來自《獎懲總和905上.xlsx》的真實 46 名學生資料 (15號轉學跳過、幹部先不採計)
+    const realStudents = [
+      { seat: '00', pwd: '1234', name: '【系統範例】陳小明', duty: '班長', merits: 20, warnings: 0, small_f: 0, hrs: 36.0, advice: '【系統示範說明】：本項目為系統匿名示範範例（驗證密碼 1234）。請於上方選取貴孩子的座號與姓名，並輸入家長密碼（預設孩子身分證字號末 4 碼）解鎖觀看個資。' },
+      { seat: '01', pwd: '9967', name: '王昱婕', duty: '', merits: 11, warnings: 0, small_f: 0, hrs: 108.0, advice: '【1模表現：2A,1B++,1B+,1B (27分/19點)】目標志願《平鎮 (2A)》。基礎相當穩健（國:A 英:A 數:B+ 自:B 社:B++ 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '02', pwd: '1463', name: '吳思瑩', duty: '', merits: 29, warnings: 0, small_f: 0, hrs: 34.0, advice: '【1模表現：1A+,2B++,2B+ (25分/20點)】目標志願《壢中 (4A10+)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '03', pwd: '3589', name: '吳婕希', duty: '', merits: 22, warnings: 0, small_f: 0, hrs: 36.0, advice: '【1模表現：2B+,2B,1C (21分/11點)】目標志願《六和職科 (4B)》。請特別關心 C 級分科目的基礎字彙與基本公式觀念。只要跟緊學校大自習與老師派題，將 C 級全面救回 B 級，分數即可大幅大躍進！' },
+      { seat: '04', pwd: '9817', name: '呂品妍', duty: '', merits: 40, warnings: 0, small_f: 0, hrs: 50.5, advice: '【1模表現：1A++,3B++,1B+ (25分/22點)】目標志願《壢中 (4A10+)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '05', pwd: '4795', name: '巫婧', duty: '', merits: 19, warnings: 0, small_f: 0, hrs: 36.0, advice: '【1模表現：1A+,4B++ (25分/22點)】目標志願《平鎮 (2A)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '06', pwd: '1652', name: '林子妍', duty: '', merits: 40, warnings: 0, small_f: 0, hrs: 61.0, advice: '【1模表現：5A頂尖標竿 (3A+,2A，33分/28點)】目標志願《壢中 (4A10+)》。五科實力全面頂尖！建議維持規律作息與定點複習，多練會考難題與非選寫作，鞏固第一志願勝局！' },
+      { seat: '07', pwd: '8020', name: '王姿甯', duty: '', merits: 24, warnings: 0, small_f: 0, hrs: 36.0, advice: '【1模表現：4A優良實力 (2A++,1A+,1A,1B++，31分/29點)】目標志願《壢中 (4A10+)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '08', pwd: '3366', name: '邱湘婷', duty: '', merits: 24, warnings: 0, small_f: 0, hrs: 39.0, advice: '【1模表現：5A頂尖標竿 (2A++,2A+,1A，33分/31點)】目標志願《武陵 (5A8+)》。五科實力全面頂尖！建議維持規律作息與定點複習，多練會考難題與非選寫作，鞏固第一志願勝局！' },
+      { seat: '09', pwd: '8523', name: '姚舒晴', duty: '', merits: 17, warnings: 0, small_f: 0, hrs: 36.0, advice: '【1模表現：1A,2B++,2B+ (25分/19點)】目標志願《平鎮 (2A)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '10', pwd: '8599', name: '張力勻', duty: '', merits: 20, warnings: 0, small_f: 0, hrs: 30.0, advice: '【1模表現：1A,2B++,1B+,1B (25分/18點)】目標志願《內壢 (3A5+)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '11', pwd: '1245', name: '張芸瑄', duty: '', merits: 20, warnings: 0, small_f: 0, hrs: 42.0, advice: '【1模表現：1B++,4B+ (22分/16點)】目標志願《大園 (1A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《大園》挺進！' },
+      { seat: '12', pwd: '1255', name: '莊予慈', duty: '', merits: 28, warnings: 0, small_f: 0, hrs: 44.0, advice: '【1模表現：3A,2B++ (29分/23點)】目標志願《壢中 (4A10+)》。基礎相當穩健（國:A 英:A 數:B++ 自:A 社:B++ 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '13', pwd: '7903', name: '許孟潔', duty: '', merits: 23, warnings: 0, small_f: 0, hrs: 35.0, advice: '【1模表現：4B++,1B (23分/18點)】目標志願《平鎮 (2A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《平鎮》挺進！' },
+      { seat: '14', pwd: '7656', name: '許祐綾', duty: '', merits: 22, warnings: 0, small_f: 0, hrs: 37.0, advice: '【1模表現：3B+,2B (23分/13點)】目標志願《平鎮 (2A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《平鎮》挺進！' },
+      { seat: '16', pwd: '9523', name: '陳佑瑄', duty: '', merits: 31, warnings: 0, small_f: 0, hrs: 65.5, advice: '【1模表現：1A++,1A+,2B++,1B+ (27分/24點)】目標志願《復旦 (2A10+)》。基礎相當穩健（國:A+ 英:B+ 數:A++ 自:B++ 社:B++ 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '17', pwd: '5898', name: '陳品蓁', duty: '', merits: 23, warnings: 0, small_f: 0, hrs: 45.0, advice: '【1模表現：1A+,1A,2B++,1B+ (27分/22點)】目標志願《復旦 (2A10+)》。基礎相當穩健（國:B+ 英:B++ 數:A+ 自:B++ 社:A 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '18', pwd: '6757', name: '楊巧瑄', duty: '', merits: 11, warnings: 0, small_f: 0, hrs: 18.0, advice: '【1模表現：3B+,2B (22分/13點)】目標志願《高職 (5B)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《高職》挺進！' },
+      { seat: '19', pwd: '0075', name: '楊茗棋', duty: '', merits: 26, warnings: 0, small_f: 0, hrs: 48.0, advice: '【1模表現：1A+,1A,2B++,1B+ (27分/22點)】目標志願《壢中 (4A10+)》。基礎相當穩健（國:B++ 英:B++ 數:A+ 自:B+ 社:A 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '20', pwd: '1508', name: '鄒昕妤', duty: '', merits: 24, warnings: 0, small_f: 0, hrs: 35.0, advice: '【1模表現：1A++,1B++,3B+ (25分/20點)】目標志願《平鎮 (2A)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '21', pwd: '3332', name: '魏愉宣', duty: '', merits: 26, warnings: 0, small_f: 0, hrs: 39.0, advice: '【1模表現：5A頂尖標竿 (1A++,2A+,2A，33分/29點)】目標志願《壢中/武陵 (4A10+)》。五科實力極佳！張媽特別提醒：【數學科需重點加強非選題與壓軸觀念演算】，【國文與英文科應全面加強長文閱讀理解與素養題型】，鞏固 5A 頂尖優勢，順利衝刺第一志願！' },
+      { seat: '22', pwd: '1927', name: '王宥仁', duty: '', merits: 27, warnings: 0, small_f: 0, hrs: 34.0, advice: '【1模表現：1A+,1A,2B+,1B (27分/19點)】目標志願《平鎮 (2A)》。基礎相當穩健（國:B+ 英:A 數:A+ 自:B+ 社:B 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '23', pwd: '8438', name: '王柏翰', duty: '', merits: 13, warnings: 0, small_f: 0, hrs: 40.0, advice: '【1模表現：1A++,1A,2B++,1B (27分/22點)】目標志願《平鎮 (2A)》。基礎相當穩健（國:A++ 英:A 數:B 自:B++ 社:B++ 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '24', pwd: '2581', name: '吳毅軒', duty: '', merits: 22, warnings: 0, small_f: 0, hrs: 33.5, advice: '【1模表現：4A優良實力 (1A+,3A,1B++，31分/25點)】目標志願《壢中 (4A10+)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '25', pwd: '9935', name: '呂尚紘', duty: '', merits: 30, warnings: 0, small_f: 0, hrs: 56.0, advice: '【1模表現：4A優良實力 (4A,1B++，31分/24點)】目標志願《壢中 (4A10+)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '26', pwd: '0283', name: '李權紘', duty: '', merits: 13, warnings: 0, small_f: 0, hrs: 46.0, advice: '【1模表現：2B++,1B+,2B (23分/15點)】目標志願《平鎮 (2A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《平鎮》挺進！' },
+      { seat: '27', pwd: '6370', name: '杜彥均', duty: '', merits: 21, warnings: 0, small_f: 0, hrs: 78.0, advice: '【1模表現：1A+,1B++,1B+,2B (24分/17點)】目標志願《五專 (5B)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '28', pwd: '2691', name: '邱奕恩', duty: '', merits: 13, warnings: 0, small_f: 0, hrs: 26.0, advice: '【1模表現：3B++,2B+ (23分/18點)】目標志願《平鎮 (2A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《平鎮》挺進！' },
+      { seat: '29', pwd: '5431', name: '邱顗玹', duty: '', merits: 8, warnings: 0, small_f: 0, hrs: 37.0, advice: '【1模表現：4A優良實力 (2A++,2A,1B++，31分/28點)】目標志願《壢中 (4A10+)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '30', pwd: '8519', name: '邱顯亦', duty: '', merits: 7, warnings: 0, small_f: 0, hrs: 40.0, advice: '【1模表現：4B,1C (19分/9點)】目標志願《六和 (5B)》。請特別關心 C 級分科目的基礎字彙與基本公式觀念。只要跟緊學校大自習與老師派題，將 C 級全面救回 B 級，分數即可大幅大躍進！' },
+      { seat: '31', pwd: '0206', name: '姜芃睿', duty: '', merits: 36, warnings: 0, small_f: 0, hrs: 42.0, advice: '【1模表現：5A頂尖標竿 (2A++,2A+,1A，33分/31點)】目標志願《壢中 (4A10+)》。五科實力全面頂尖！建議維持規律作息與定點複習，多練會考難題與非選寫作，鞏固第一志願勝局！' },
+      { seat: '32', pwd: '0897', name: '洪鼎祐', duty: '', merits: 25, warnings: 0, small_f: 0, hrs: 35.0, advice: '【1模表現：4A優良實力 (1A++,3A,1B++，31分/26點)】目標志願《壢中 (4A10+)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '33', pwd: '7351', name: '秦湘宏', duty: '', merits: 16, warnings: 0, small_f: 0, hrs: 52.0, advice: '【1模表現：1A,2B++,1B+,1B (25分/18點)】目標志願《內壢 (3A5+)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '34', pwd: '6886', name: '張永謙', duty: '', merits: 13, warnings: 4, small_f: 1, hrs: 37.5, advice: '【1模表現：1A,1B+,3B (25分/14點)】目標志願《六和應英 (5B)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '35', pwd: '5486', name: '曹泳釤', duty: '', merits: 25, warnings: 0, small_f: 0, hrs: 41.0, advice: '【1模表現：4A優良實力 (4A,1B+，31分/23點)】目標志願《壢中 (4A)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '36', pwd: '7131', name: '郭承易', duty: '', merits: 10, warnings: 0, small_f: 0, hrs: 35.0, advice: '【1模表現：1A++,1A+,2A,1B+ (30分/26點)】目標志願《壢中 (4A)》。基礎相當穩健（國:A 英:A++ 數:B+ 自:A 社:A+ 作文:2）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '37', pwd: '1719', name: '陳晏叡', duty: '', merits: 9, warnings: 0, small_f: 0, hrs: 37.0, advice: '【1模表現：1A,3B++,1B (25分/19點)】目標志願《復旦 (2A)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '38', pwd: '9396', name: '陳駿威', duty: '', merits: 16, warnings: 0, small_f: 0, hrs: 39.0, advice: '【1模表現：1A,1B++,2B+,1B (25分/17點)】目標志願《壢中 (4A10+)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '39', pwd: '6638', name: '黃品睿', duty: '', merits: 20, warnings: 0, small_f: 0, hrs: 38.0, advice: '【1模表現：1A+,2A,1B++,1B (28分/22點)】目標志願《壢中 (4A10+)》。基礎相當穩健（國:B++ 英:A+ 數:B 自:A 社:A 作文:2）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '40', pwd: '9599', name: '廖禾澄', duty: '', merits: 23, warnings: 0, small_f: 0, hrs: 49.5, advice: '【1模表現：4A優良實力 (2A+,2A,1B++，31分/26點)】目標志願《壢中 (4A)》。實力已跨入第一梯隊！關鍵在將臨門一腳的 B++ 科目提升至 A，總點數提升後即可順利衝進《壢中》！' },
+      { seat: '41', pwd: '6843', name: '劉宗權', duty: '', merits: 15, warnings: 0, small_f: 0, hrs: 42.0, advice: '【1模表現：1B++,2B+,2B (22分/14點)】目標志願《平鎮 (4A)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《平鎮》挺進！' },
+      { seat: '42', pwd: '2252', name: '蔡秉澂', duty: '', merits: 19, warnings: 0, small_f: 0, hrs: 44.0, advice: '【1模表現：1A+,1A,2B++,1B+ (27分/22點)】目標志願《平鎮 (2A)》。基礎相當穩健（國:A 英:A+ 數:B+ 自:B++ 社:B++ 作文:3）！建議針對 B+ / B++ 科目加強錯題觀念訂正，將 1~2 科推升至 A 級，錄取空間將顯著提升！' },
+      { seat: '43', pwd: '3971', name: '盧永翔', duty: '', merits: 14, warnings: 0, small_f: 0, hrs: 34.0, advice: '【1模表現：1A,2B++,1B+,1B (25分/18點)】目標志願《六和 (1A4B)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '44', pwd: '8109', name: '謝宥晨', duty: '', merits: 16, warnings: 1, small_f: 0, hrs: 29.0, advice: '【1模表現：1B+,4B (23分/11點)】目標志願《六和 (5B)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《六和》挺進！' },
+      { seat: '45', pwd: '7769', name: '謝彥為', duty: '', merits: 17, warnings: 0, small_f: 0, hrs: 50.0, advice: '【1模表現：1A,2B++,1B+,1B (25分/18點)】目標志願《陽明 (2A)》。已有主科拿 A 亮眼表現！目前重點在於穩住 4B++ 科目，善用翰林雲端影城觀看錯題解析，把 B 級提升為 A 級！' },
+      { seat: '46', pwd: '8707', name: '鍾佳哲', duty: '', merits: 18, warnings: 0, small_f: 1, hrs: 7.0, advice: '【1模表現：3B++,2B+ (23分/18點)】目標志願《壢中 (4A10+)》。五科成績表現平穩！請保持每日定時複習，重點補強弱勢學科，逐步向目標《壢中》挺進！' },
+      { seat: '47', pwd: '8899', name: '羅永承', duty: '', merits: 12, warnings: 2, small_f: 0, hrs: 42.0, advice: '【1模表現：1B+,3B,1C (20分/10點)】目標志願《六和職科 (4B1C)》。請特別關心 C 級分科目的基礎字彙與基本公式觀念。只要跟緊學校大自習與老師派題，將 C 級全面救回 B 級，分數即可大幅大躍進！' }
+    ];
+
+    let currentUnlockedIdx = null;
+    let isMasterUnlocked = false;
+
+    function initParentPicker() {
+      const select = document.getElementById('parent-stu-select');
+      select.innerHTML = '<option value="" disabled selected>-- 請選取您的孩子座號與姓名 --</option>';
+      realStudents.forEach((s, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = (s.seat === '00') ? s.name : `${s.seat}號 ${s.name}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function onParentSelectChange() {
+      document.getElementById('parent-pwd-input').value = '';
+      checkAuthStatus();
+    }
+
+    function verifyParentPwd() {
+      const idx = document.getElementById('parent-stu-select').value;
+      if (idx === '' || idx === null) {
+        showPwdStatus(false, '⚠️ 請先選取孩子的座號與姓名！');
+        return;
+      }
+      const stu = realStudents[idx];
+      const pwdInput = document.getElementById('parent-pwd-input').value.trim();
+
+      const idLast4 = stu.pwd || '';
+      const seatPwdPadded = `${stu.seat}305`;
+
+      if (pwdInput === '305' || pwdInput === '305305') {
+        isMasterUnlocked = true;
+        currentUnlockedIdx = idx;
+        showPwdStatus(true, `✅ 導師萬用密碼驗證成功！全班 46 位學生資料已解鎖。`);
+      } else if ((idLast4 && pwdInput === idLast4) || pwdInput === seatPwdPadded) {
+        currentUnlockedIdx = idx;
+        showPwdStatus(true, `✅ 家長密碼驗證成功！已成功解鎖 [${stu.seat}號 ${stu.name}] 之個人資料。`);
+      } else {
+        showPwdStatus(false, `❌ 密碼錯誤！預設密碼為孩子的【身分證字號末 4 碼】。如有疑問請洽導師。`);
+        renderLockedView(stu);
+        return;
+      }
+
+      loadParentStudent();
+    }
+
+    function checkAuthStatus() {
+      const idx = document.getElementById('parent-stu-select').value;
+      if (idx === '' || idx === null || idx === undefined) {
+        showPwdStatus(false, '🔒 請先於上方選取孩子的座號與姓名，並輸入密碼解鎖個資。');
+        renderLockedView(null);
+        return;
+      }
+      const stu = realStudents[idx];
+
+      if (isMasterUnlocked || currentUnlockedIdx === idx) {
+        showPwdStatus(true, `✅ 已驗證 [${stu.seat}號 ${stu.name}] 之家長查詢權限`);
+        loadParentStudent();
+      } else {
+        showPwdStatus(false, `🔒 尚未驗證密碼！請輸入家長密碼（預設孩子身分證末4碼）以查看個資。`);
+        renderLockedView(stu);
+      }
+    }
+
+    function showPwdStatus(isSuccess, msg) {
+      const banner = document.getElementById('pwd-status-banner');
+      const text = document.getElementById('pwd-status-text');
+      text.innerText = msg;
+      if (isSuccess) {
+        banner.className = "p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold flex flex-wrap items-center justify-between gap-2 text-base transition-all";
+      } else {
+        banner.className = "p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 font-bold flex flex-wrap items-center justify-between gap-2 text-base transition-all";
+      }
+    }
+
+    function renderLockedView(stu) {
+      if (!stu) {
+        document.getElementById('p-stu-info').innerText = '-- 尚未選取學生 --';
+        document.getElementById('p-teacher-advice').innerHTML = "🔒 請於上方下拉選單選取貴孩子的座號與姓名，並輸入家長驗證密碼（預設孩子身分證字號末 4 碼）解鎖觀看。";
+        document.getElementById('p-score-guidance').innerText = "🔒 待解鎖";
+        document.getElementById('p-score-multi').innerText = "🔒 待解鎖";
+        document.getElementById('p-score-cap').innerText = "🔒 待解鎖";
+        document.getElementById('p-total-badge').innerText = "預估總分：🔒 請先選取學生並解鎖";
+        document.getElementById('p-warn-notice').className = "text-slate-400 font-semibold";
+        document.getElementById('p-warn-notice').innerHTML = "🔒 品德銷過狀態：請選取學生";
+        document.getElementById('p-service-notice').className = "text-slate-400 font-semibold";
+        document.getElementById('p-service-notice').innerHTML = "🔒 服務時數進度：請選取學生";
+        document.getElementById('p-merit-notice').className = "text-slate-400 font-semibold";
+        document.getElementById('p-merit-notice').innerHTML = "🔒 獎勵累計：請選取學生";
+        return;
+      }
+      document.getElementById('p-stu-info').innerText = (stu.seat === '00') ? `${stu.name} (🔒 隱私保護)` : `座號 ${stu.seat} ${stu.name} (🔒 隱私保護)`;
+      document.getElementById('p-teacher-advice').innerHTML = "🔒 <strong>個人化導師建議已加密隱藏：</strong> 請於上方輸入您孩子的家長驗證密碼（預設孩子身分證末4碼）解鎖觀看。";
+
+      document.getElementById('p-score-guidance').innerText = "🔒 需驗證";
+      document.getElementById('p-score-multi').innerText = "🔒 需驗證";
+      document.getElementById('p-score-cap').innerText = "🔒 需驗證";
+      document.getElementById('p-total-badge').innerText = "預估總分：🔒 輸入密碼解鎖顯示";
+
+      document.getElementById('p-warn-notice').className = "text-slate-400 font-semibold";
+      document.getElementById('p-warn-notice').innerHTML = "🔒 <strong>品德銷過狀態：</strong> 已隱藏保護（密碼驗證後顯示）";
+
+      document.getElementById('p-service-notice').className = "text-slate-400 font-semibold";
+      document.getElementById('p-service-notice').innerHTML = "🔒 <strong>服務時數進度：</strong> 已隱藏保護（密碼驗證後顯示）";
+
+      document.getElementById('p-merit-notice').className = "text-slate-400 font-semibold";
+      document.getElementById('p-merit-notice').innerHTML = "🔒 <strong>獎勵累計：</strong> 已隱藏保護（密碼驗證後顯示）";
+    }
+
+    function loadParentStudent() {
+      const idx = document.getElementById('parent-stu-select').value;
+      const stu = realStudents[idx];
+
+      document.getElementById('p-stu-info').innerText = `座號 ${stu.seat} ${stu.name}`;
+      document.getElementById('p-teacher-advice').innerText = stu.advice;
+
+      // 銷過警示
+      const hasPenalty = (stu.warnings > 0 || stu.small_f > 0);
+      const warnEl = document.getElementById('p-warn-notice');
+      if (hasPenalty) {
+        let pText = "";
+        if (stu.small_f > 0) pText += `${stu.small_f}小過 `;
+        if (stu.warnings > 0) pText += `${stu.warnings}警告 `;
+        warnEl.className = "text-rose-400 font-bold";
+        warnEl.innerHTML = `⚠️ <strong>銷過提醒：</strong> 目前尚有 <strong>${pText.trim()}待銷過</strong>！請督促孩子儘速至學務處領銷過單完成，即可恢復品德無處分 6 分滿分！`;
+      } else {
+        warnEl.className = "text-emerald-400";
+        warnEl.innerHTML = `✅ <strong>品德銷過狀態：</strong> 銷過後無任何處分紀錄，穩拿 6 分滿分！`;
+      }
+
+      // 服務時數缺額 (幹部先不採計，目標34小時)
+      const hrsDeficit = Math.max(0, (34.0 - stu.hrs).toFixed(1));
+      const servEl = document.getElementById('p-service-notice');
+      if (hrsDeficit > 0) {
+        servEl.className = "text-amber-300 font-bold";
+        servEl.innerHTML = `⚠️ <strong>服務時數進度：</strong> 目前 ${stu.hrs} 小時，尚缺少 <strong>${hrsDeficit} 小時</strong> 即可拿滿 10 分！建議撥空參加志工服務補齊。`;
+      } else {
+        servEl.className = "text-emerald-400";
+        servEl.innerHTML = `✅ <strong>服務時數進度：</strong> 目前 ${stu.hrs} 小時，服務表現已順利拿滿 10 分滿分！`;
+      }
+
+      const rewardScore = Math.min(6.0, stu.merits * 0.5);
+      document.getElementById('p-merit-notice').innerHTML = `💡 <strong>獎勵累計：</strong> 嘉獎累計 ${stu.merits} 支（相當於獎勵積分 ${rewardScore.toFixed(1)}/6.0分）。`;
+
+      calcCapSim();
+    }
+
+    function updateParentCalc() {
+      const idx = document.getElementById('parent-stu-select').value;
+      const stu = realStudents[idx];
+
+      const hrsDeficit = Math.max(0, (34.0 - stu.hrs).toFixed(1));
+      const serviceScore = (hrsDeficit == 0) ? 10 : Math.min(10, stu.hrs * 0.3);
+
+      const hasPenalty = (stu.warnings > 0 || stu.small_f > 0);
+      const penaltyScore = hasPenalty ? 0 : 6;
+      const moralScore = Math.min(10, penaltyScore + Math.min(6, stu.merits * 0.5));
+
+      const multiRaw = moralScore + serviceScore + 9 + 6;
+      const multiFinal = Math.min(35, multiRaw);
+
+      const capTotal = 30 + 3;
+      const totalScore = 32 + multiFinal + capTotal;
+
+      document.getElementById('p-score-guidance').innerText = "32 / 32 分";
+      document.getElementById('p-score-multi').innerText = `${multiFinal.toFixed(0)} / 35 分`;
+      document.getElementById('p-score-cap').innerText = `${capTotal.toFixed(0)} / 33 分`;
+
+      document.getElementById('p-total-badge').innerText = `預估總分：${totalScore.toFixed(0)} / 100 分 (35點)`;
+    }
+
+    
+    // 115年桃園各公立高中最低錄取門檻資料庫 (參考《115年桃園各高中最低錄取標示-公立高中》圖片)
+    const taoyuanHighSchools = [
+      { name: '武陵高中', quota: 651, reqScoreText: '5A (33分)', minScore: 33, minPoints: 32, detail: '國文A+、數學A' },
+      { name: '中壢高中', quota: 612, reqScoreText: '5A / 4A1B (31分)', minScore: 31, minPoints: 28, detail: '國文A、數學A++' },
+      { name: '桃園高中', quota: 700, reqScoreText: '5A / 4A1B (31分)', minScore: 31, minPoints: 25, detail: '國文B++、數學A+' },
+      { name: '內壢高中', quota: 622, reqScoreText: '4A1B / 3A2B (29分)', minScore: 29, minPoints: 23, detail: '國文A、數學A、英語B++' },
+      { name: '六和高中 (醫科數理班)', quota: '直升/免試', reqScoreText: '2A (27分)', minScore: 27, minPoints: 21, detail: '🏫 本校醫科數理班，2A 21點重點培育' },
+      { name: '陽明高中', quota: 649, reqScoreText: '3A2B / 2A3B (27分)', minScore: 27, minPoints: 21, detail: '國文B++、數學A、英語B+、社會A' },
+      { name: '平鎮高中', quota: 455, reqScoreText: '3A2B / 2A3B (25分)', minScore: 25, minPoints: 20, detail: '國文B++、數學A' },
+      { name: '永豐高中', quota: 339, reqScoreText: '2A3B / 1A4B (25分)', minScore: 25, minPoints: 20, detail: '國文B++、數學B++' },
+      { name: '六和高中 (普通科/普高)', quota: '直升/免試', reqScoreText: '1A (25分)', minScore: 25, minPoints: 15, detail: '🏫 本校普通科，1A 優質直升與繁星優勢' },
+      { name: '大園高中', quota: 420, reqScoreText: '2A3B / 1A4B (25分)', minScore: 25, minPoints: 15, detail: '國文A、數學B、英語B+' },
+      { name: '南崁高中', quota: 384, reqScoreText: '1A4B / 5B (23分)', minScore: 23, minPoints: 20, detail: '國文B++、數學B++' },
+      { name: '壽山高中', quota: 330, reqScoreText: '1A4B / 5B (23分)', minScore: 23, minPoints: 18, detail: '國文B++、數學B++、英語B+' },
+      { name: '龍潭高中', quota: 135, reqScoreText: '1A4B / 5B (23分)', minScore: 23, minPoints: 16, detail: '國文B+、數學B+' },
+      { name: '楊梅高中', quota: 447, reqScoreText: '1A4B / 5B (23分)', minScore: 23, minPoints: 13, detail: '國文B+、數學B、英語B、社會B+' },
+      { name: '六和高中 (職業類科/職高)', quota: '直升/免試', reqScoreText: '5B (23分)', minScore: 23, minPoints: 10, detail: '🏫 本校職科 (資處/應外/多媒體)，技術專長' }
+    ];
+
+    const gradeMap = {
+      'A++': { score: 6, point: 7, rank: 'A' },
+      'A+':  { score: 6, point: 6, rank: 'A' },
+      'A':   { score: 6, point: 5, rank: 'A' },
+      'B++': { score: 4, point: 4, rank: 'B' },
+      'B+':  { score: 4, point: 3, rank: 'B' },
+      'B':   { score: 4, point: 2, rank: 'B' },
+      'C':   { score: 2, point: 1, rank: 'C' }
+    };
+
+    function calcCapSim() {
+      const c = document.getElementById('sim-c').value;
+      const e = document.getElementById('sim-e').value;
+      const m = document.getElementById('sim-m').value;
+      const n = document.getElementById('sim-n').value;
+      const s = document.getElementById('sim-s').value;
+      const w = parseInt(document.getElementById('sim-w').value, 10);
+
+      const subjects = [gradeMap[c], gradeMap[e], gradeMap[m], gradeMap[n], gradeMap[s]];
+      let subScoreTotal = 0;
+      let pointsTotal = 0;
+      let countA = 0, countB = 0, countC = 0;
+
+      subjects.forEach(sub => {
+        subScoreTotal += sub.score;
+        pointsTotal += sub.point;
+        if (sub.rank === 'A') countA++;
+        if (sub.rank === 'B') countB++;
+        if (sub.rank === 'C') countC++;
+      });
+
+      let wScore = 0;
+      if (w >= 4) wScore = 3;
+      else if (w >= 2) wScore = 2;
+      else if (w === 1) wScore = 1;
+
+      const capTotalScore = subScoreTotal + wScore; // max 33
+
+      let summaryText = "";
+      if (countA > 0) summaryText += `${countA}A `;
+      if (countB > 0) summaryText += `${countB}B `;
+      if (countC > 0) summaryText += `${countC}C `;
+      summaryText = summaryText.trim();
+
+      document.getElementById('cap-sim-score-badge').innerText = `會考預估：${capTotalScore} 分 / ${pointsTotal} 點 (${summaryText})`;
+      
+      const idx = document.getElementById('parent-stu-select').value;
+      const stu = realStudents[idx];
+      const hrsDeficit = Math.max(0, (34.0 - stu.hrs).toFixed(1));
+      const serviceScore = (hrsDeficit == 0) ? 10 : Math.min(10, stu.hrs * 0.3);
+      const hasPenalty = (stu.warnings > 0 || stu.small_f > 0);
+      const penaltyScore = hasPenalty ? 0 : 6;
+      const moralScore = Math.min(10, penaltyScore + Math.min(6, stu.merits * 0.5));
+      const multiFinal = Math.min(35, moralScore + serviceScore + 9 + 6);
+
+      const grandTotal = 32 + multiFinal + capTotalScore;
+      document.getElementById('p-score-cap').innerText = `${capTotalScore} / 33 分`;
+      document.getElementById('p-cap-text').innerText = `${summaryText} (${pointsTotal}點)`;
+      document.getElementById('p-total-badge').innerText = `預估總分：${grandTotal.toFixed(0)} / 100 分 (${pointsTotal}點)`;
+      document.getElementById('cap-sim-total-badge').innerText = `桃連區超額比序預估總分：${grandTotal.toFixed(0)} 分 (含積點 ${pointsTotal} 點)`;
+
+      renderSchoolCutoffTable(capTotalScore, pointsTotal);
+    }
+
+    function renderSchoolCutoffTable(simScore, simPoints) {
+      const tbody = document.getElementById('school-cutoff-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      taoyuanHighSchools.forEach(sch => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-indigo-50/50 transition";
+
+        let badgeHtml = "";
+        if (simScore > sch.minScore || (simScore === sch.minScore && simPoints >= sch.minPoints)) {
+          badgeHtml = `<span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold text-sm">🟢 落在錄取範圍</span>`;
+        } else if (simScore === sch.minScore || simScore === sch.minScore - 2) {
+          badgeHtml = `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-sm">🟡 臨門一腳 / 衝刺目標</span>`;
+        } else {
+          badgeHtml = `<span class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 font-bold text-sm">⚪ 需再加強衝刺</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="p-3 font-black text-indigo-900">${sch.name}</td>
+          <td class="p-3 text-slate-700">${sch.quota} 人</td>
+          <td class="p-3 font-bold text-rose-700">${sch.reqScoreText}</td>
+          <td class="p-3 font-bold text-amber-800">${sch.minPoints === 0 ? '無條件' : sch.minPoints + ' 點'}</td>
+          <td class="p-3 text-slate-600 text-sm font-medium">${sch.detail}</td>
+          <td class="p-3 text-center">${badgeHtml}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+
+    window.onload = function() {
+      initParentPicker();
+      checkAuthStatus();
+    };
+  </script>
+</body>
+</html>
